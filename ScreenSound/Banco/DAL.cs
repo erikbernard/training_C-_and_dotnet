@@ -1,0 +1,49 @@
+﻿using Microsoft.EntityFrameworkCore;
+using ScreenSound.Modelos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ScreenSound.Banco
+{
+    internal class DAL<T> where T : class
+    {
+        protected readonly ScreenSoundContext _context;
+
+        public DAL(ScreenSoundContext context)
+        {
+            _context = context;
+        }
+
+        public IEnumerable<T> Listar()
+        {
+            return _context.Set<T>().ToList();
+        }
+        public void Inserir(T item) 
+        {
+            _context.Set<T>().Add(item);
+            _context.SaveChanges();
+        }
+        public void Atualizar(T item)
+        {
+            _context.Set<T>().Update(item);
+            _context.SaveChanges();
+        }
+        public void Deletar(T item)
+        {
+            _context.Set<T>().Remove(item);
+            _context.SaveChanges();
+        }
+
+        public T? RecuperarPor(Func<T, bool> condicao)
+        {
+            return _context.Set<T>().FirstOrDefault(condicao);
+        }
+        public IEnumerable<T> ListarPor(Func<T, bool> condicao)
+        {
+            return _context.Set<T>().Where(condicao);
+        }
+    }
+}
