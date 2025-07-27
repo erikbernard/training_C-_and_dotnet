@@ -3,7 +3,6 @@ using ScreenSound.API.Endpoints;
 using ScreenSound.Banco;
 using ScreenSound.Modelos;
 using ScreenSound.Shared.Modelos.Modelos;
-using System.Data.SqlTypes;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,9 +15,17 @@ builder.Services.AddTransient<DAL<Genero>>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors();
 
 var app = builder.Build();
 
+app.UseCors(options =>
+{
+    options.AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader();
+
+});
 
 app.AddEndpointsArtistas();
 app.AddEndpointsMusicas();
