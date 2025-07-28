@@ -29,12 +29,21 @@ namespace ScreenSound.API.Endpoints
                 }
                 return Results.Ok(artista);
             });
-            app.MapPost("/Artistas/", ([FromServices] DAL<Artista> dal, [FromBody] ArtistasRequest artistaResquest) =>
+            app.MapPost("/Artistas/", async ([FromServices] IHostEnvironment env, [FromServices] DAL<Artista> dal, [FromBody] ArtistasRequest artistaResquest) =>
             {
-                var artista = new Artista();
-                artista.Nome = artistaResquest.nome;
-                artista.Bio = artistaResquest.bio;
-                artista.FotoPerfil = artistaResquest.fotoPerfil;
+                var nome = artistaResquest.nome.Trim();
+                var imagemArtista = DateTime.Now.ToString("ddMMyyyyhhss") + "." + nome + ".jpeg";
+                var path = Path.Combine(env.ContentRootPath,"wwwroot", "FotoPerfil", imagemArtista);
+
+                using MemoryStream ms = new MemoryStream(Convert.FromBase64String(artistaResquest.fotoPerfil!));
+                using FileStream fs = new(path, FileMode.Create);
+                await ms.CopyToAsync(fs);
+
+                var artista =  new Artista(artistaResquest.nome, artistaResquest.bio)
+                {
+                    FotoPerfil = $"/FotoPerfil/{imagemArtista}"
+                };
+
                 if (artista is null)
                 {
                     return Results.NotFound();
