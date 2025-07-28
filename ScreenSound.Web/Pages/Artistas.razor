@@ -1,7 +1,56 @@
-﻿@page "/Artista"
-<h3>Artistas</h3>
-<h4>@Mensagem</h4>
+﻿@page "/Artistas"
+@inject ArtistaAPI artistaAPI
+
+
+@if (artistasPorPagina is null)
+{
+    <div Class="d-flex flex-column" Style="width:100%; align-items: center">
+        <MudProgressCircular Color="Color.Info" Style="height:100px;width:100px;" Indeterminate="true" />
+    </div>
+}
+
+@if (artistasPorPagina is not null)
+{
+    <MudStack Class="mt-4 mb-4" Row="true" Justify="Justify.SpaceBetween">
+        <MudText Class="mb-4" Typo="Typo.h4">Artistas cadastrados</MudText>
+        <MudPagination Count="@totalPaginas" SelectedChanged="PaginaMudou"></MudPagination>
+    </MudStack>
+    <MudGrid>
+        @foreach (var artista in artistasPorPagina)
+        {
+            <MudItem xs="3">
+                <CardArtista Artista="artista" />
+            </MudItem>
+        }
+    </MudGrid>
+} 
+
 @code {
-    public string? Mensagem { get; set; } = "Ola mundo";
+    private ICollection<ArtistaResponse>? artistas;
+    private int tamanho = 4;
+    private int totalItens;
+    private int totalPaginas;
+    private ICollection<ArtistaResponse>? artistasPorPagina;
+
+    protected override async Task OnInitializedAsync()
+    {
+        artistas = await artistaAPI.GetArtistasAsync();
+        if (artistas is not null)
+        {
+            artistas = artistas.OrderByDescending(a => a.Id).ToList();
+            totalItens = artistas.Count();
+            totalPaginas = Convert.ToInt32(Math.Ceiling((totalItens * 1.0) / tamanho));
+            this.PaginaMudou(1);
+        }
+    }
+
+    private void PaginaMudou(int pageNumber)
+    {
+        var indice = pageNumber - 1;
+        artistasPorPagina = artistas!
+            .Skip(tamanho * indice)
+            .Take(tamanho)
+            .ToList();
+    }
 
 }
