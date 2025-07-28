@@ -27,6 +27,7 @@ app.UseCors(options =>
 
 });
 
+app.UseStaticFiles();
 app.AddEndpointsArtistas();
 app.AddEndpointsMusicas();
 app.AddEndpointsGeneros();
