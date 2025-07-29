@@ -20,6 +20,18 @@
                       Lines="4"
                       Required="true"
                       RequiredError="Campo obrigatório." />
+        <MudImage Class="mt-4" src="@fileImage" />
+        <MudFileUpload T="IBrowserFile" Accept=".jpeg" FilesChanged="UploadFile">
+            <ButtonTemplate>
+                <MudButton HtmlTag="label"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.PhotoCamera"
+                           for="@context">
+                    Foto de Perfil
+                </MudButton>
+            </ButtonTemplate>
+        </MudFileUpload>
 
         <div class="d-flex align-center justify-space-between mt-4">
             <MudButton Variant="Variant.Filled"
@@ -48,6 +60,8 @@
 @code {
     private string? nome;
     private string? biografia;
+    private string? fotoPerfil;
+    private string? fileImage;
 
     [Parameter]
     public string? NomeArtista { get; set; }
@@ -59,6 +73,7 @@
         Artista = await artistaAPI.GetArtistaPorNomeAsync(NomeArtista!);
         nome = Artista!.Nome;
         biografia = Artista!.Bio;
+        fileImage = $"http://localhost:5026{Artista!.FotoPerfil}";
     }
 
     private async Task Deletar()
@@ -68,7 +83,7 @@
     }
     private async Task Editar()
     {
-        var requestEdit = new ArtistaRequestEdit(Artista!.Id, nome!, biografia!);
+        var requestEdit = new ArtistaRequestEdit(Artista!.Id, nome!, biografia!, fotoPerfil!);
         await artistaAPI.UpdateArtistaAsync(requestEdit);
         navigationManager.NavigateTo("/Artistas");
     }
@@ -78,5 +93,19 @@
         navigationManager.NavigateTo("/Artistas");
 
     }
+    private async Task UploadFile(IBrowserFile file)
+    {
+        long maxFileSize = 1024 * 1024 * 15;
+        var format = "image/jpeg";
+        var resizedImage = await file.RequestImageFileAsync(format, 200, 200);
 
+        using var fileStream = resizedImage.OpenReadStream();
+        using var memoryStream = new MemoryStream();
+        await fileStream.CopyToAsync(memoryStream);
+
+        var imageUpload = Convert.ToBase64String(memoryStream.ToArray());
+        fileImage = $"data:{format};base64,{imageUpload}";
+
+        fotoPerfil = imageUpload;
+    }
 }

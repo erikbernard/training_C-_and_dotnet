@@ -1,37 +1,35 @@
-﻿<MudCard Outlined="true">
-    @if (Artista is null)
-    {
-        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px" />
-        <MudCardHeader>
-            <CardHeaderContent>
-            <MudSkeleton />
-            </CardHeaderContent>
-        </MudCardHeader>
-        <MudCardActions>
-            <MudSkeleton />
-        </MudCardActions>
-    }
-    @if (Artista is not null)
-    {
-        <MudCardMedia Image="https://placehold.co/200x200/a3e635/1f2937?text=Artista.Nome"></MudCardMedia>
-        <MudCardHeader>
-            <CardHeaderContent>
-                <MudText Typo="Typo.h6">@Artista.Nome</MudText>
-            </CardHeaderContent>
-        </MudCardHeader>
-        <MudCardContent>
-            <MudText Typo="Typo.body2">@Artista.Bio</MudText>
-        </MudCardContent>
-        <MudCardActions>
-            <MudButton Color="Color.Warning"
-                       Variant="Variant.Outlined"
-                       Href=@($"/EditarArtista/{Artista!.Nome}")>Detalhes</MudButton>
-        </MudCardActions>
-    }
+﻿@if (Artista is not null)
+{
+    <MudCard Outlined="true">
+            <MudCardMedia Image=@Imagem></MudCardMedia>
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">@Artista.Nome</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Typo="Typo.body2">@Artista.Bio</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Color="Color.Warning"
+                           Variant="Variant.Outlined"
+                           Href=@($"/EditarArtista/{Artista!.Nome}")>Detalhes</MudButton>
+            </MudCardActions>
 
-</MudCard>
+    </MudCard>
+}
 
 @code {
     [Parameter]
     public ArtistaResponse? Artista { get; set; }
+    public string? Imagem { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Artista!.FotoPerfil != null)
+        {
+            Imagem = Artista.FotoPerfil.Contains("Foto") ? $"http://localhost:5026{Artista.FotoPerfil.Replace(" ", "%20")}" : $"https://placehold.co/200x200/776be7/1f2937?text={Artista.Nome}";
+        }
+    }
 }
+
